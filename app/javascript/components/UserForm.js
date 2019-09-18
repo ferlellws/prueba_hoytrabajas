@@ -21,25 +21,6 @@ class UserForm extends React.Component {
     }
   }
 
-  addNewUser(user) {
-    if (this.state.users == null) {
-      return false;
-    }
-
-    var users = update(this.state.users, {
-      $push: [user]
-    });
-
-    // var users = this.state.users;
-    // users.push(user);
-
-    this.setState({
-      users: users.sort((a, b) => {
-        return a.first_name.toLowerCase() - b.first_name.toLowerCase()
-      })
-    })
-  }
-
   handleUserTypeInput(obj) {
     $.each(obj, (key, value) => {
       if (Object.keys(obj).length > 0) {
@@ -64,63 +45,33 @@ class UserForm extends React.Component {
     var states = this.state;
     e.preventDefault();
     if (this.props.action == 'new') {
-      $.post('/users', { user: user })
-        .done(function(data) {
-          this.addNewUser(data);
-        }.bind(this))
-        .fail((errors) => {
-          $.each(errors.responseJSON, (key, value) => {
-            errors = [];
-            $("#" + key).addClass("is-invalid");
-            errors.push(value);
-            this.setState({
-              errors: errors
-            });
-
-            $(".alert").removeClass("d-none");
-          })
-        });
+      this.sendDataToController(user, 'POST', `/users/`, "Persona registrada correctamente");
     } else {
-      console.log(user);
-      $.ajax({
-        url: `/users/${user.id}`,
-        type: 'PUT',
-        data: { user: user },
-        success: () => {
-            console.log('you did it!!!');
-            //this.updateItems(item);
-            // callback to swap objects
-        },
-        error: (errors) => {
-          $.each(errors.responseJSON, (key, value) => {
-            errors = [];
-            $("#" + key).addClass("is-invalid");
-            errors.push(value);
-            this.setState({
-              errors: errors
-            });
-
-            $(".alert").removeClass("d-none");
-          })
-        }
-      })
-      // $.post('/users/' + user.id, { user: user })
-      //   .done(function(data) {
-      //     this.addNewUser(data);
-      //   }.bind(this))
-      //   .fail((errors) => {
-      //     $.each(errors.responseJSON, (key, value) => {
-      //       errors = [];
-      //       $("#" + key).addClass("is-invalid");
-      //       errors.push(value);
-      //       this.setState({
-      //         errors: errors
-      //       });
-
-      //       $(".alert").removeClass("d-none");
-      //     })
-      //   });
+      this.sendDataToController(user, 'PUT', `/users/${user.id}`, "Persona actualizada correctamente");
     }
+  }
+
+  sendDataToController(user, method, url, msg) {
+    $.ajax({
+      url: url,
+      type: method,
+      data: { user: user },
+      success: () => {
+        alert(msg);
+      },
+      error: (errors) => {
+        $.each(errors.responseJSON, (key, value) => {
+          errors = [];
+          $("#" + key).addClass("is-invalid");
+          errors.push(value);
+          this.setState({
+            errors: errors
+          });
+
+          $(".alert").removeClass("d-none");
+        })
+      }
+    })
   }
 
   handleCleanForm() {

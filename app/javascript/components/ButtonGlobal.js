@@ -9,7 +9,12 @@ class ButtonGlobal extends React.Component {
 
   render() {
     return (
-      <input type={this.props.type} name="commit" value={this.props.value} className={"btn btn-outline-" + this.props.class_btn} data-disable-with={this.props.value} onClick={this.handleOnClick.bind(this)} />
+      <input type={this.props.type}
+        name="commit"
+        value={this.props.value}
+        className={"btn btn-outline-" + this.props.class_btn}
+        data-disable-with={this.props.value}
+        onClick={this.handleOnClick.bind(this)} />
     );
   }
 }
