@@ -14,6 +14,7 @@ class UserForm extends React.Component {
     this.state = {
       users: this.props.users,
       errors: null,
+      id: this.props.user.id,
       first_name: this.props.user.first_name !== null ? this.props.user.first_name : '',
       last_name: this.props.user.last_name !== null ? this.props.user.last_name : '',
       phone_number: this.props.user.phone_number !== null ? this.props.user.phone_number : ''
@@ -55,31 +56,71 @@ class UserForm extends React.Component {
 
   handleSubmit(e) {
     var user = {
+      id: this.state.id,
       first_name: this.state.first_name,
       last_name: this.state.last_name,
       phone_number: this.state.phone_number,
     }
     var states = this.state;
     e.preventDefault();
-    $.post('/users', { user: user })
-      .done(function(data) {
-        this.addNewUser(data);
-      }.bind(this))
-      .fail((errors) => {
-        $.each(errors.responseJSON, (key, value) => {
-          errors = [];
-          $("#" + key).addClass("is-invalid");
-          errors.push(value);
-          console.log(">>>>>>>>>>>>value: ", value);
-          console.log(">>>>>>>>>>>>errors: ", errors);
-          console.log(this.state);
-          this.setState({
-            errors: errors
-          });
+    if (this.props.action == 'new') {
+      $.post('/users', { user: user })
+        .done(function(data) {
+          this.addNewUser(data);
+        }.bind(this))
+        .fail((errors) => {
+          $.each(errors.responseJSON, (key, value) => {
+            errors = [];
+            $("#" + key).addClass("is-invalid");
+            errors.push(value);
+            this.setState({
+              errors: errors
+            });
 
-          $(".alert").removeClass("d-none");
-        })
-      });
+            $(".alert").removeClass("d-none");
+          })
+        });
+    } else {
+      console.log(user);
+      $.ajax({
+        url: `/users/${user.id}`,
+        type: 'PUT',
+        data: { user: user },
+        success: () => {
+            console.log('you did it!!!');
+            //this.updateItems(item);
+            // callback to swap objects
+        },
+        error: (errors) => {
+          $.each(errors.responseJSON, (key, value) => {
+            errors = [];
+            $("#" + key).addClass("is-invalid");
+            errors.push(value);
+            this.setState({
+              errors: errors
+            });
+
+            $(".alert").removeClass("d-none");
+          })
+        }
+      })
+      // $.post('/users/' + user.id, { user: user })
+      //   .done(function(data) {
+      //     this.addNewUser(data);
+      //   }.bind(this))
+      //   .fail((errors) => {
+      //     $.each(errors.responseJSON, (key, value) => {
+      //       errors = [];
+      //       $("#" + key).addClass("is-invalid");
+      //       errors.push(value);
+      //       this.setState({
+      //         errors: errors
+      //       });
+
+      //       $(".alert").removeClass("d-none");
+      //     })
+      //   });
+    }
   }
 
   handleCleanForm() {
